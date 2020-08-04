@@ -17,6 +17,9 @@ inputs:
   is_release:
     description: 'Whether this is a release documentation build'
     default: false
+  requirements:
+    description: 'Python package(s) required to build documentation'
+    default: false
 outputs:
   name:
     description: 'Author name'

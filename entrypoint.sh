@@ -8,6 +8,18 @@ function echo_run {
 	"$@"
 }
 
+# Upgrade pip and install requested Python package(s) if there are any
+if [[ ! -z "${INPUT_REQUIREMENTS}" ]]; then
+	echo ::group::Update pip
+	echo_run python3 -m pip install --upgrade pip
+	echo ::endgroup::
+	echo ::group::Install Python package(s)
+	for pkg in $INPUT_REQUIREMENTS; do
+		echo_run python3 -m pip install $pkg
+	done
+	echo ::endgroup::
+fi
+
 REPO_SRC="${GITHUB_WORKSPACE}/${INPUT_SOURCE_DIR}"
 SPHNX_DT=$GITHUB_WORKSPACE/.doctree
 
