@@ -33,6 +33,7 @@ jobs:
       -
         name: Determine tag for registry
         id: vars
+        shell: bash
         run: echo ::set-output name=tag::${GITHUB_REF#/refs/*/}
       -
         name: Registry tag output
