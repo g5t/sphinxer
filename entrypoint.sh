@@ -8,24 +8,13 @@ function echo_run {
 	"$@"
 }
 
-# Upgrade pip and install requested Python package(s) if there are any
-if [[ ! -z "${INPUT_REQUIREMENTS}" ]]; then
-	echo ::group::Update pip
-	echo_run python3 -m pip install --upgrade pip
-	echo ::endgroup::
-	echo ::group::Install Python package(s)
-	for pkg in $INPUT_REQUIREMENTS; do
-		echo_run python3 -m pip install $pkg
-	done
-	echo ::endgroup::
-fi
-
 REPO_SRC="${GITHUB_WORKSPACE}/${INPUT_SOURCE_DIR}"
 SPHNX_DT=$GITHUB_WORKSPACE/.doctree
 
 echo ::group::Create working directories
 echo_run mkdir -p $SPHNX_DT
-HTML_DIR=`mktemp -d -p ${GITHUB_WORKSPACE}`
+# Create a temporary directory *in* the Docker container to avoid cleaning-up problems
+HTML_DIR=`mktemp -d`
 echo ::endgroup::
 
 echo ::group::Gather author and commit information
@@ -33,9 +22,16 @@ echo_run cd $REPO_SRC
 AUTHOR_NAME="$(git show --format=%an -s)"
 AUTHOR_EMAIL="$(git show --format=%ae -s)"
 DOCS_SHA8="$(echo ${GITHUB_SHA} | cut -c 1-8)"
-# Determine the tag name or branch name -- nevermind, tag or 'latest'
-#: "${named:=$(git describe --tags)}" "${named:=$(git describe --all)}"
-: "${named:=$(git describe --tags)}" "${named:=latest}"
+
+BRANCH=$(git branch --show-current)
+if [ $BRANCH = "master" ]; then
+  # Determine the tag name or branch name -- nevermind, tag or 'latest'
+  # only match 'version' tags, e.g., vM.m.p, and keep only up to the second period
+  : "${named:=$(git describe --tags --match 'v*'| cut -d'.' -f1-2)}" "${named:=latest}"
+else
+  named="branch-$BRANCH"
+fi
+
 echo "::set-output name=name::"${AUTHOR_NAME}""
 echo "::set-output name=email::"$AUTHOR_EMAIL}""
 echo "::set-output name=docs_sha::$(echo ${GITHUB_SHA})"
@@ -43,21 +39,23 @@ echo "::set-output name=docs_sha8::"${DOCS_SHA8}""
 echo "git described as ${named}"
 echo ::endgroup::
 
-echo ::group::Build and install the python module
-echo_run python3 -m pip install $REPO_SRC
-echo ::endgroup::
+WHEEL="${GITHUB_WORKSPACE}/${INPUT_WHEEL}"
+if [ -f "$WHEEL" ]; then
+	echo ::group::Install pre-built python module
+	echo_run python3 -m pip install $WHEEL
+	echo ::endgroup::
+else
+	echo ::group::Build and install the python module
+	# echo_run python3 -m pip install --use-feature=in-tree-build $REPO_SRC
+	echo_run cd $REPO_SRC
+	echo_run python3 setup.py install
+	echo ::endgroup::
+fi
 
-echo ::group::Configure pages author information
-for val in $INPUT_PAGES_DIR; do
-	echo_run cd "${GITHUB_WORKSPACE}/${val}"
-	echo_run git config user.name $AUTHOR_NAME
-	echo_run git config user.email $AUTHOR_EMAIL
-done
-echo ::endgroup::
 
 echo ::group::Build pages with Sphinx
-# pre-create the _build directory so that Doxygen is happy (This is the opposite of good)
-mkdir -p $REPO_SRC/docs/_build
+# create directories to make Doxygen happy (This is the opposite of good)
+mkdir -p $REPO_SRC/docs/_build/doxygenxml
 # actually build the HTML pages
 echo_run sphinx-build -b html $REPO_SRC/docs $HTML_DIR -E -d $SPHNX_DT
 echo ::endgroup::
@@ -86,12 +84,18 @@ for val in $INPUT_PAGES_DIR; do
 		echo_run unlink stable
 		echo_run ln -s ${named} stable
 	fi
-	# Add all changes to the gh_pages branch
-	echo_run git add .
 	echo ::endgroup::
-
-	echo ::group::Commit to repository and push
-	echo_run git commit --date="$(date)" --message='Auto commit from Versioned Sphinx GH-Pages Action'
-	echo_run git push
-	echo ::endgroup::
+  if [ "${INPUT_UPDATE_GIT}" = true ]; then
+    echo ::group::Configure pages author information
+    echo_run git config user.name $AUTHOR_NAME
+    echo_run git config user.email $AUTHOR_EMAIL
+    echo ::endgroup::
+	  echo ::group::Add all changes to the repository
+	  echo_run git add .
+	  echo ::endgroup::
+	  echo ::group::Commit to repository and push
+	  echo_run git commit --date="$(date)" --message='Auto commit from Versioned Sphinx GH-Pages Action'
+	  echo_run git push
+	  echo ::endgroup::
+  fi
 done
