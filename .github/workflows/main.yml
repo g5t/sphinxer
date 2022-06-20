@@ -32,8 +32,11 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       -
         name: Determine tag for registry
-        id: tags
+        id: vars
         run: echo ::set-output name=tag::${GITHUB_REF#/refs/*/}
+      -
+        name: Registry tag output
+        run: echo ${{ steps.vars.outputs.tag }}
       -
         name: Build and push
         id: docker_build
@@ -43,7 +46,7 @@ jobs:
           file: ./Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: brille/sphinxer:latest,brille/sphinxer:${{ steps.tags.outputs.tag }}
+          tags: brille/sphinxer:latest,brille/sphinxer:${{ steps.vars.outputs.tag }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
       -
