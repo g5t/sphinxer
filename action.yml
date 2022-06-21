@@ -27,6 +27,10 @@ inputs:
     description: 'Use a pre-built wheel instead of building before installing'
     default: 'false'
     required: false
+  html_dir:
+    description: 'The destination HTML directory, useful for Pull Request triggered builds'
+    default: 'unknown'
+    required: false
 outputs:
   name:
     description: 'Author name'

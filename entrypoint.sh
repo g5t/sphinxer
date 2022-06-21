@@ -24,13 +24,17 @@ AUTHOR_NAME="$(git show --format=%an -s)"
 AUTHOR_EMAIL="$(git show --format=%ae -s)"
 DOCS_SHA8="$(echo ${GITHUB_SHA} | cut -c 1-8)"
 
-BRANCH=$(git branch --show-current)
-if [ $BRANCH = "master" ]; then
-  # Determine the tag name or branch name -- nevermind, tag or 'latest'
-  # only match 'version' tags, e.g., vM.m.p, and keep only up to the second period
-  : "${named:=$(git describe --tags --match 'v*'| cut -d'.' -f1-2)}" "${named:=latest}"
+if [ $INPUT_SOURCE_DIR = "unknown" ]; then
+	named=$INPUT_SOURCE_DIR
 else
-  named="branch/$BRANCH"
+	BRANCH=$(git branch --show-current)
+	if [ $BRANCH = "master" ]; then
+	# Determine the tag name or branch name -- nevermind, tag or 'latest'
+	# only match 'version' tags, e.g., vM.m.p, and keep only up to the second period
+	: "${named:=$(git describe --tags --match 'v*'| cut -d'.' -f1-2)}" "${named:=latest}"
+	else
+	named="branch/$BRANCH"
+	fi
 fi
 
 echo "::set-output name=name::"${AUTHOR_NAME}""
