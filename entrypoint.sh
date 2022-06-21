@@ -88,7 +88,7 @@ for val in $INPUT_PAGES_DIR; do
 	echo ::endgroup::
   if [ "${INPUT_UPDATE_GIT}" = true ]; then
 		echo ::group::Add output git repository to safe config
-		echo_run git config -- global --add safe.directory $(pwd)
+		echo_run git config --global --add safe.directory $(pwd)
 		echo ::endgroup::
     echo ::group::Configure pages author information
     echo_run git config user.name $AUTHOR_NAME

@@ -12,8 +12,7 @@ with:
   pages_dir: pages
 ```
 
-A more realistic case, including appropriate checkouts and a more-recent version
-of Sphinx than in the [Docker container](https://github.com/g5t/docact)
+A more realistic case, including appropriate checkouts 
 
 ```yaml
 steps:
@@ -37,7 +36,7 @@ steps:
   working-directory: to
   run: echo "::set-output name=wheel::to/$(ls)"
 
-- uses: g5t/sphinxer@v2.0.1
+- uses: g5t/sphinxer@v2.0.2
   with:
     source_dir: thisref
     pages_dir: pages
