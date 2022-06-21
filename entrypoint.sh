@@ -18,6 +18,7 @@ HTML_DIR=`mktemp -d`
 echo ::endgroup::
 
 echo ::group::Gather author and commit information
+echo_run git config --global --add safe.directory $REPO_SRC
 echo_run cd $REPO_SRC
 AUTHOR_NAME="$(git show --format=%an -s)"
 AUTHOR_EMAIL="$(git show --format=%ae -s)"
@@ -29,7 +30,7 @@ if [ $BRANCH = "master" ]; then
   # only match 'version' tags, e.g., vM.m.p, and keep only up to the second period
   : "${named:=$(git describe --tags --match 'v*'| cut -d'.' -f1-2)}" "${named:=latest}"
 else
-  named="branch-$BRANCH"
+  named="branch/$BRANCH"
 fi
 
 echo "::set-output name=name::"${AUTHOR_NAME}""
@@ -86,16 +87,19 @@ for val in $INPUT_PAGES_DIR; do
 	fi
 	echo ::endgroup::
   if [ "${INPUT_UPDATE_GIT}" = true ]; then
+		echo ::group::Add output git repository to safe config
+		echo_run git config -- global --add safe.directory $(pwd)
+		echo ::endgroup::
     echo ::group::Configure pages author information
     echo_run git config user.name $AUTHOR_NAME
     echo_run git config user.email $AUTHOR_EMAIL
+		echo ::endgroup::
+    echo ::group::Add all changes to the repository
+    echo_run git add .
     echo ::endgroup::
-	  echo ::group::Add all changes to the repository
-	  echo_run git add .
-	  echo ::endgroup::
-	  echo ::group::Commit to repository and push
-	  echo_run git commit --date="$(date)" --message='Auto commit from Versioned Sphinx GH-Pages Action'
-	  echo_run git push
-	  echo ::endgroup::
+    echo ::group::Commit to repository and push
+    echo_run git commit --date="$(date)" --message='Auto commit from Versioned Sphinx GH-Pages Action'
+    echo_run git push
+    echo ::endgroup::
   fi
 done

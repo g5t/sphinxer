@@ -25,12 +25,23 @@ steps:
   with:
     ref: gh-pages
     path: pages
+    fetch-depth: 0
 
-- uses: g5t/sphinxer@v1.1.0
+- uses: actions/download-artifact@v2
+  id: path
+  with:
+    name: ${{ needs.previous_job.outputs.artifact }}
+    path: to
+
+- id: wheelfact
+  working-directory: to
+  run: echo "::set-output name=wheel::to/$(ls)"
+
+- uses: g5t/sphinxer@v2.0.1
   with:
     source_dir: thisref
     pages_dir: pages
     is_release: ${{ contains(github.event_name, 'release') }}
     create_readme: true
-    requirements: 'sphinx==3.1.2 sphinx-argparse==0.2.5 sphinx-autodoc-typehints==1.11.0'
+    wheel: ${{ steps.wheelfact.ouputs.wheel }}
 ```
