@@ -37,10 +37,10 @@ else
 	named="pull/$INPUT_SOURCE_DIR"
 fi
 
-echo "::set-output name=name::"${AUTHOR_NAME}""
-echo "::set-output name=email::"$AUTHOR_EMAIL}""
-echo "::set-output name=docs_sha::$(echo ${GITHUB_SHA})"
-echo "::set-output name=docs_sha8::"${DOCS_SHA8}""
+echo "name="${AUTHOR_NAME}"" >> $GITHUB_OUTPUT
+echo "email="$AUTHOR_EMAIL}"" >> $GITHUB_OUTPUT
+echo "docs_sha=$(echo ${GITHUB_SHA})" >> $GITHUB_OUTPUT
+echo "docs_sha8="${DOCS_SHA8}"" >> $GITHUB_OUTPUT
 echo "git described as ${named}"
 echo ::endgroup::
 
