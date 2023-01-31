@@ -24,7 +24,7 @@ AUTHOR_NAME="$(git show --format=%an -s)"
 AUTHOR_EMAIL="$(git show --format=%ae -s)"
 DOCS_SHA8="$(echo ${GITHUB_SHA} | cut -c 1-8)"
 
-if [ $INPUT_SOURCE_DIR = "unknown" ]; then
+if [ $INPUT_HTML_DIR = "unknown" ]; then
 	BRANCH=$(git branch --show-current)
 	if [ $BRANCH = "master" ]; then
 	# Determine the tag name or branch name -- nevermind, tag or 'latest'
