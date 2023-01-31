@@ -34,7 +34,7 @@ if [ $INPUT_SOURCE_DIR = "unknown" ]; then
 	named="branch/$BRANCH"
 	fi
 else
-	named="pull/$INPUT_SOURCE_DIR"
+	named="pull/$INPUT_HTML_DIR"
 fi
 
 echo "name="${AUTHOR_NAME}"" >> $GITHUB_OUTPUT
