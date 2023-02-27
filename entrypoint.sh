@@ -38,7 +38,7 @@ else
 fi
 
 echo "name="${AUTHOR_NAME}"" >> $GITHUB_OUTPUT
-echo "email="$AUTHOR_EMAIL}"" >> $GITHUB_OUTPUT
+echo "email="${AUTHOR_EMAIL}"" >> $GITHUB_OUTPUT
 echo "docs_sha=$(echo ${GITHUB_SHA})" >> $GITHUB_OUTPUT
 echo "docs_sha8="${DOCS_SHA8}"" >> $GITHUB_OUTPUT
 echo "git described as ${named}"
