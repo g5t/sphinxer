@@ -37,11 +37,11 @@ else
 	named="pull/$INPUT_HTML_DIR"
 fi
 
-echo "name="${AUTHOR_NAME}"" >> $GITHUB_OUTPUT
-echo "email="${AUTHOR_EMAIL}"" >> $GITHUB_OUTPUT
-echo "docs_sha=$(echo ${GITHUB_SHA})" >> $GITHUB_OUTPUT
-echo "docs_sha8="${DOCS_SHA8}"" >> $GITHUB_OUTPUT
-echo "git described as ${named}"
+echo 'name="${AUTHOR_NAME}"' >> $GITHUB_OUTPUT
+echo 'email="${AUTHOR_EMAIL}"' >> $GITHUB_OUTPUT
+echo 'docs_sha=$(echo ${GITHUB_SHA})' >> $GITHUB_OUTPUT
+echo 'docs_sha8="${DOCS_SHA8}"' >> $GITHUB_OUTPUT
+echo 'git described as ${named}'
 echo ::endgroup::
 
 WHEELHOUSE="${GITHUB_WORKSPACE}/${INPUT_WHEELHOUSE}"
@@ -85,27 +85,27 @@ if [ "${INPUT_CREATE_README}" = true ]; then
 fi
 
 for val in $INPUT_PAGES_DIR; do
-	echo ::group::Move documentation into the correct places
-	named_dir="${GITHUB_WORKSPACE}/${val}/${named}"
-	# Copy the newly built HTML pages into either gh_pages/latest or gh_pages/[version name]
-	echo_run mkdir -p $named_dir
-	echo_run rsync -a --delete "${HTML_DIR}/" $named_dir
-	# make sure we're in the root of the gh-pages branch
-	echo_run cd "${GITHUB_WORKSPACE}/${val}"
-	# for releases, move the stable symlink
-	if [ "${INPUT_IS_RELEASE}" = true ]; then
-		echo_run unlink stable
-		echo_run ln -s ${named} stable
-	fi
-	echo ::endgroup::
+  echo ::group::Move documentation into the correct places
+  named_dir="${GITHUB_WORKSPACE}/${val}/${named}"
+  # Copy the newly built HTML pages into either gh_pages/latest or gh_pages/[version name]
+  echo_run mkdir -p $named_dir
+  echo_run rsync -a --delete "${HTML_DIR}/" $named_dir
+  # make sure we're in the root of the gh-pages branch
+  echo_run cd "${GITHUB_WORKSPACE}/${val}"
+  # for releases, move the stable symlink
+  if [ "${INPUT_IS_RELEASE}" = true ]; then
+    echo_run unlink stable
+    echo_run ln -s ${named} stable
+  fi
+  echo ::endgroup::
   if [ "${INPUT_UPDATE_GIT}" = true ]; then
-		echo ::group::Add output git repository to safe config
-		echo_run git config --global --add safe.directory $(pwd)
-		echo ::endgroup::
+    echo ::group::Add output git repository to safe config
+    echo_run git config --global --add safe.directory $(pwd)
+    echo ::endgroup::
     echo ::group::Configure pages author information
-    echo_run git config user.name $AUTHOR_NAME
-    echo_run git config user.email $AUTHOR_EMAIL
-		echo ::endgroup::
+    echo_run git config user.name "${AUTHOR_NAME}"
+    echo_run git config user.email "${AUTHOR_EMAIL}"
+    echo ::endgroup::
     echo ::group::Add all changes to the repository
     echo_run git add .
     echo ::endgroup::
