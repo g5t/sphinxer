@@ -44,18 +44,26 @@ echo "docs_sha8="${DOCS_SHA8}"" >> $GITHUB_OUTPUT
 echo "git described as ${named}"
 echo ::endgroup::
 
-WHEEL="${GITHUB_WORKSPACE}/${INPUT_WHEEL}"
-if [ -f "$WHEEL" ]; then
-	echo ::group::Install pre-built python module
-	echo_run python3 -m pip install $WHEEL
+WHEELHOUSE="${GITHUB_WORKSPACE}/${INPUT_WHEELHOUSE}"
+if [ -d "$WHEELHOUSE" ]; then
+	echo ::group::Install pre-built ${INPUT_PACKAGE} python module
+	echo_run python3 -m pip install --break-system-packages ${INPUT_PACKAGE} --no-index -f ${WHEELHOUSE}
 	echo ::endgroup::
 else
-	echo ::group::Build and install the python module
-	# echo_run python3 -m pip install --use-feature=in-tree-build $REPO_SRC
-	echo_run cd $REPO_SRC
-	echo_run python3 setup.py install
-	echo ::endgroup::
+	WHEEL="${GITHUB_WORKSPACE}/${INPUT_WHEEL}"
+	if [ -f "$WHEEL" ]; then
+		echo ::group::Install pre-built python module
+		echo_run python3 -m pip install --break-system-packages $WHEEL
+		echo ::endgroup::
+	else
+		echo ::group::Build and install the python module
+		# echo_run python3 -m pip install --use-feature=in-tree-build $REPO_SRC
+		echo_run cd $REPO_SRC
+		echo_run python3 setup.py install
+		echo ::endgroup::
+	fi
 fi
+
 
 
 echo ::group::Build pages with Sphinx

@@ -23,6 +23,12 @@ inputs:
     description: 'Update and push the $\{{ pages_dir }} git repositories. `false` is useful for local testing'
     default: 'true'
     required: false
+  wheelhouse:
+    description: "Location of pre-built wheel(s)"
+    required: true
+  package:
+    description: "Name of the pre-built package to install from the wheelhouse"
+    required: true
   wheel:
     description: 'Use a pre-built wheel instead of building before installing'
     default: 'false'
